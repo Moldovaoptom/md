@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Каталог товаров</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <header class="bg-white p-4 shadow-md flex justify-between items-center">
+    <h1 class="text-xl font-bold">Каталог</h1>
+    <input id="search" type="text" placeholder="Поиск..." class="border p-2 rounded w-1/2" />
+  </header>
+
+  <nav class="overflow-x-auto flex space-x-4 p-4 bg-white shadow">
+    <button onclick="filterCategory('Все')" class="category-btn font-medium">Все</button>
+    <button onclick="filterCategory('Бытовая техника')" class="category-btn">Бытовая техника</button>
+    <button onclick="filterCategory('Посуда')" class="category-btn">Посуда</button>
+    <button onclick="filterCategory('Сезон')" class="category-btn">Сезон</button>
+  </nav>
+
+  <main class="p-4 grid grid-cols-1 gap-4" id="productList">
+    <!-- Товары будут здесь -->
+  </main>
+
+  <footer class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-inner flex justify-between items-center">
+    <span>🛒 <span id="cart-count">0</span> в заказе</span>
+    <button onclick="openOrderForm()" class="bg-blue-600 text-white px-4 py-2 rounded">Оформить заказ</button>
+  </footer>
+
+  <div id="orderForm" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center">
+    <div class="bg-white p-6 rounded shadow w-11/12 max-w-md">
+      <h2 class="text-xl font-bold mb-4">Оформление заказа</h2>
+      <input type="text" placeholder="Ваше имя" class="w-full border p-2 mb-2" id="name" />
+      <input type="tel" placeholder="Телефон" class="w-full border p-2 mb-4" id="phone" />
+      <button onclick="submitOrder()" class="bg-green-600 text-white px-4 py-2 rounded w-full">Отправить</button>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      { name: "Швабра", category: "Бытовая техника", price: 120 },
+      { name: "Пылесос", category: "Бытовая техника", price: 850 },
+      { name: "Кастрюля", category: "Посуда", price: 200 },
+      { name: "Термос", category: "Сезон", price: 150 },
+    ];
+    const cart = [];
+
+    function renderProducts(filter = 'Все') {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      products.filter(p => filter === 'Все' || p.category === filter).forEach(product => {
+        const item = document.createElement('div');
+        item.className = "bg-white p-4 rounded shadow flex justify-between items-center";
+        item.innerHTML = `
+          <div>
+            <h3 class="font-bold">${product.name}</h3>
+            <p class="text-sm text-gray-600">${product.price} лей</p>
+          </div>
+          <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='addToCart("${product.name}")'>Добавить</button>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function filterCategory(category) {
+      renderProducts(category);
+    }
+
+    function addToCart(name) {
+      cart.push(name);
+      document.getElementById('cart-count').innerText = cart.length;
+    }
+
+    function openOrderForm() {
+      if (cart.length === 0) return alert('Сначала добавьте товары в корзину');
+      document.getElementById('orderForm').classList.remove('hidden');
+    }
+
+    function submitOrder() {
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+      if (!name || !phone) return alert('Заполните имя и телефон');
+      alert(`Заказ отправлен!\nИмя: ${name}\nТелефон: ${phone}\nТовары: ${cart.join(', ')}`);
+      // Здесь можно подключить отправку в Telegram или Google Таблицу
+      cart.length = 0;
+      document.getElementById('cart-count').innerText = '0';
+      document.getElementById('orderForm').classList.add('hidden');
+    }
+
+    document.getElementById('search').addEventListener('input', function () {
+      const value = this.value.toLowerCase();
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      products.filter(p => p.name.toLowerCase().includes(value)).forEach(product => {
+        const item = document.createElement('div');
+        item.className = "bg-white p-4 rounded shadow flex justify-between items-center";
+        item.innerHTML = `
+          <div>
+            <h3 class="font-bold">${product.name}</h3>
+            <p class="text-sm text-gray-600">${product.price} лей</p>
+          </div>
+          <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick='addToCart("${product.name}")'>Добавить</button>
+        `;
+        list.appendChild(item);
+      });
+    });
+
+    renderProducts();
+  </script>
+</body>
+</html>
